@@ -34,6 +34,8 @@ function OnTextChangedI()
 		let s:state.anchor = col('.') - 1
 
 		let s:state.suggestions = NormaliseSuggestions(function(&omnifunc)(0, ''))
+		let s:state.filtered_suggestions = s:state.suggestions
+		let s:state.partial = ""
 
 		if len(s:state.suggestions) == 0
 			call Deactivate()
