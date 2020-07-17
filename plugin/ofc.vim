@@ -2,12 +2,6 @@ autocmd TextChangedI * call OnTextChangedI()
 autocmd InsertLeave * call Deactivate()
 autocmd CursorMoved * call Deactivate()
 
-" TODO: allow start regexp to be defined
-
-" TODO: functions should be script scoped
-
-" TODO: Control selection using C-P and C-N
-
 function OnTextChangedI()
 	if &omnifunc == ''
 		return
@@ -20,7 +14,6 @@ function OnTextChangedI()
 			return
 		endif
 
-		" TODO: Should this be a buffer variable instead?
 		let s:state = {}
 
 		" Find the start of the completion.
@@ -124,7 +117,6 @@ function Deactivate()
 	unlet! s:state
 endfunction
 
-" TODO: manage this in a smarter way -- i.e. not a global.
 call prop_type_add("highlight", #{highlight: "Error"})
 
 function BuildPopupEntries(suggestions)
