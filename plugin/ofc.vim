@@ -14,33 +14,33 @@ function OnTextChangedI()
 			return
 		endif
 
-		let s:state = {}
-
 		" Find the start of the completion.
 		let start = function(&omnifunc)(1, '')
 
 		if start == -2 || start == -3
 			" -2 and -3 indicate to cancel silently. See :help
-			" complete-functions. We have to deactivate, since
-			" s:state has already been defined.
-			call Deactivate()
+			" complete-functions.
 			return
 		elseif start < 0
 			" Negative other than -2 and -3 indicate the completions start at
 			" the column of the cursor.
 			let start = col('.')
 		endif
-		
-		let s:state.anchor = col('.') - 1
 
-		let s:state.suggestions = NormaliseSuggestions(function(&omnifunc)(0, ''))
-		let s:state.filtered_suggestions = s:state.suggestions
-		let s:state.partial = ""
-
-		if len(s:state.suggestions) == 0
-			call Deactivate()
+		let omnifunc_suggestions = function(&omnifunc)(0, '')
+		if len(omnifunc_suggestions) == 0
 			return
 		endif
+		let normalised_suggestions = NormaliseSuggestions(omnifunc_suggestions)
+
+		let s:state = #{
+			\ anchor: col('.') - 1,
+			\ suggestions: normalised_suggestions,
+			\ filtered_suggestions: normalised_suggestions,
+			\ partial: '',
+			\ pup_id: 0,
+			\ index: -1,
+		\ }
 
 		let popup_entries = BuildPopupEntries(s:state.suggestions)
 		let s:state.pup_id = popup_create(popup_entries, #{pos: 'topleft', line: 'cursor+1', col: 'cursor-1'})
@@ -68,19 +68,20 @@ function OnTextChangedI()
 			execute 'normal! x'
 		endif
 
-		if !exists("s:state.index")
-			let s:state.index = 0
-		else
-			let s:state.index += 1
-			if s:state.index == len(s:state.filtered_suggestions)
-				unlet s:state.index
-			endif
+		" Cycle through to the next filtered suggestion. If we go past then
+		" end, then we want to select none (indicated by -1), which
+		" corresponds to the user's typed filter.
+		let s:state.index += 1
+		if s:state.index == len(s:state.filtered_suggestions)
+			let s:state.index = -1
 		endif
 
-		if exists("s:state.index")
-			let @" = s:state.filtered_suggestions[s:state.index].word
-		else
+		" Insert the selection (either from the filtered suggestions list, or
+		" form the user's typed partial filter).
+		if s:state.index == -1
 			let @" = s:state.partial
+		else
+			let @" = s:state.filtered_suggestions[s:state.index].word
 		endif
 		execute 'normal! ""p'
 		call feedkeys("\<Right>")
@@ -113,7 +114,7 @@ function Filter(filter, suggestions)
 endfunction
 
 function Deactivate()
-	if exists("s:state.pup_id")
+	if exists("s:state")
 		call popup_close(s:state.pup_id)
 	endif
 	unlet! s:state
@@ -134,7 +135,7 @@ function BuildPopupEntries(suggestions)
 	let idx = 0
 	for txt in texts
 		let entry = #{text: txt}
-		if exists("s:state.index") && idx == s:state.index
+		if idx == s:state.index
 			let entry.props = [#{col:1, length: max_text, type: "highlight"}]
 		endif
 		call add(entries, entry)
