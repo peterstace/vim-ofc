@@ -120,8 +120,9 @@ endfunction
 call prop_type_add("highlight", #{highlight: "Error"})
 
 function BuildPopupEntries(suggestions)
-	let max_word = max(map(copy(a:suggestions), {_, x -> get(x, 'word', '')}))
-	let max_kind = max(map(copy(a:suggestions), {_, x -> get(x, 'kind', '')}))
+	let max_word = max(map(copy(a:suggestions), {_, x -> len(get(x, 'word', ''))}))
+	let max_kind = max(map(copy(a:suggestions), {_, x -> len(get(x, 'kind', ''))}))
+	echom "mw" max_word "mk" max_kind
 	let texts =  map(copy(a:suggestions), {_, x -> printf(
 		\ " %-*s %*s %s",
 		\ max_word, get(x, "word", ""),
