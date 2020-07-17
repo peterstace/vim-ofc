@@ -87,19 +87,13 @@ function OnTextChangedI()
 		call feedkeys("\<Right>")
 
 		call Restore()
-
-		let popup_entries = BuildPopupEntries(s:state.filtered_suggestions)
-		call popup_settext(s:state.pup_id, popup_entries)
-
-		return
-	endif
-
-	let s:state.partial = getline(line('.'))[s:state.anchor:col('.')]
-
-	let s:state.filtered_suggestions = Filter(s:state.partial, s:state.suggestions)
-	if len(s:state.filtered_suggestions) == 0
-		call Deactivate()
-		return
+	else
+		let s:state.partial = getline(line('.'))[s:state.anchor:col('.')]
+		let s:state.filtered_suggestions = Filter(s:state.partial, s:state.suggestions)
+		if len(s:state.filtered_suggestions) == 0
+			call Deactivate()
+			return
+		endif
 	endif
 
 	let popup_entries = BuildPopupEntries(s:state.filtered_suggestions)
