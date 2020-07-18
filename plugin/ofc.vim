@@ -123,7 +123,6 @@ function BuildPopupEntries(suggestions)
 		\ max_word, get(x, "word", ""),
 		\ max_kind, get(x, "kind", ""),
 		\ max_menu, get(x, "menu", ""))})
-	let max_text = max(map(copy(texts), {_, x -> len(x)}))
 	let entries = []
 	let idx = 0
 	for txt in texts
@@ -133,7 +132,8 @@ function BuildPopupEntries(suggestions)
 				call prop_type_add("ofc_highlight", #{highlight: "PmenuSel"})
 				let g:ofc_highlight_defined = 1
 			endif
-			let entry.props = [#{col:1, length: max_text, type: "ofc_highlight"}]
+			let length = max_word + max_kind + max_menu + 3
+			let entry.props = [#{col:1, length: length, type: "ofc_highlight"}]
 		endif
 		call add(entries, entry)
 		let idx += 1
