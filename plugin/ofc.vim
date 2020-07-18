@@ -114,8 +114,6 @@ function Deactivate()
 	unlet! s:state
 endfunction
 
-call prop_type_add("highlight", #{highlight: "Error"})
-
 function BuildPopupEntries(suggestions)
 	let max_word = max(map(copy(a:suggestions), {_, x -> len(get(x, 'word', ''))}))
 	let max_kind = max(map(copy(a:suggestions), {_, x -> len(get(x, 'kind', ''))}))
@@ -131,7 +129,11 @@ function BuildPopupEntries(suggestions)
 	for txt in texts
 		let entry = #{text: txt}
 		if idx == s:state.index
-			let entry.props = [#{col:1, length: max_text, type: "highlight"}]
+			if !exists("g:ofc_highlight_defined")
+				call prop_type_add("ofc_highlight", #{highlight: "PmenuSel"})
+				let g:ofc_highlight_defined = 1
+			endif
+			let entry.props = [#{col:1, length: max_text, type: "ofc_highlight"}]
 		endif
 		call add(entries, entry)
 		let idx += 1
