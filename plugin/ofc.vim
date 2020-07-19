@@ -24,7 +24,7 @@ function OnTextChangedI()
 		elseif start < 0
 			" Negative other than -2 and -3 indicate the completions start at
 			" the column of the cursor.
-			let start = col('.')
+			let start = col('.') - 1
 		endif
 
 		let omnifunc_suggestions = function(&omnifunc)(0, '')
@@ -34,7 +34,7 @@ function OnTextChangedI()
 		let normalised_suggestions = NormaliseSuggestions(omnifunc_suggestions)
 
 		let s:state = #{
-			\ anchor: col('.') - 1,
+			\ anchor: start,
 			\ suggestions: normalised_suggestions,
 			\ filtered_suggestions: normalised_suggestions,
 			\ partial: '',
